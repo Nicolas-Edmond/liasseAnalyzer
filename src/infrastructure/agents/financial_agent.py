@@ -65,7 +65,15 @@ class DeepAgentsFinancialAgent(IFinancialAgent):
             "messages": [{"role": "user", "content": prompt_user}]
         })
         
-        raw_content = response["messages"][-1].content.strip()
+        raw_content = response["messages"][-1].content
+        if isinstance(raw_content, list):
+            # Handle potential list of blocks (text/tool calls)
+            texts = [block.get('text', '') for block in raw_content if isinstance(block, dict) and 'text' in block]
+            if not texts:
+                texts = [str(block) for block in raw_content if isinstance(block, str)]
+            raw_content = "".join(texts)
+            
+        raw_content = raw_content.strip()
         
         # Nettoyage et parsing du JSON (cas d'hallucination des markdown code blocks)
         if raw_content.startswith("```json"):
