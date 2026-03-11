@@ -1,0 +1,48 @@
+2026-03-11 14:35:17,741 [INFO] TestLocal: 🚀 Démarrage du test local Multi-Agents (LangGraph + DeepAgents)...
+2026-03-11 14:35:17,742 [INFO] TestLocal: ✅ GOOGLE_APPLICATION_CREDENTIALS set to /private/tmp/formalis-credentials.json
+2026-03-11 14:35:17,742 [INFO] TestLocal: 
+⚙️  Initialisation des composants du Workflow...
+2026-03-11 14:35:17,791 [INFO] botocore.credentials: Found credentials in shared credentials file: ~/.aws/credentials
+2026-03-11 14:35:17,960 [INFO] TestLocal: 📁 Trouvé 6 fichiers à analyser dans 'test/':
+2026-03-11 14:35:17,960 [INFO] TestLocal:   - Artinity - Liasse fiscale - IS RN - 2023 V2.pdf
+2026-03-11 14:35:17,960 [INFO] TestLocal:   - Liasse Fiscale.pdf
+2026-03-11 14:35:17,960 [INFO] TestLocal:   - 2022-12-31 - Splitera - Comptes annuels.pdf
+2026-03-11 14:35:17,961 [INFO] TestLocal:   - JULIA_WEILLER_SAS-IS-Simplifié-2023.pdf
+2026-03-11 14:35:17,961 [INFO] TestLocal:   - AZ VENTURE liasse 2023.pdf
+2026-03-11 14:35:17,961 [INFO] TestLocal:   - B FIRST - Liasse fiscale - IS RS - 2023 (signed).pdf
+2026-03-11 14:35:17,961 [INFO] TestLocal: 
+==============================================
+2026-03-11 14:35:17,961 [INFO] TestLocal: 📄 Analyse de : test/Artinity - Liasse fiscale - IS RN - 2023 V2.pdf
+2026-03-11 14:35:17,961 [INFO] TestLocal: ==============================================
+2026-03-11 14:35:17,961 [INFO] TestLocal: 🧠 Lancement de l'agent... (Veuillez patienter)
+2026-03-11 14:35:17,969 [INFO] application.workflow: LangGraph [parse_document]: Démarrage pour l'URL test/Artinity - Liasse fiscale - IS RN - 2023 V2.pdf
+2026-03-11 14:35:18,153 [INFO] application.workflow: LangGraph [parse_document]: Succès. 81085 caractères extraits.
+2026-03-11 14:35:18,154 [INFO] application.workflow: LangGraph [extract_metrics]: Lancement de l'agent financier...
+2026-03-11 14:35:18,539 [INFO] infrastructure.agents.financial_agent: Invoking DeepAgent to analyze the document with tools...
+2026-03-11 14:35:22,099 [INFO] infrastructure.agents.financial_agent: Agent is loading skill: chiffre_affaires
+2026-03-11 14:35:23,637 [INFO] infrastructure.agents.financial_agent: Agent is loading skill: capitaux_propres
+2026-03-11 14:35:25,475 [INFO] infrastructure.agents.financial_agent: Agent is loading skill: resultat_exercice
+2026-03-11 14:35:30,850 [INFO] infrastructure.agents.financial_agent: Generating structured output via Pydantic schema...
+2026-03-11 14:35:32,894 [INFO] infrastructure.agents.financial_agent: Structured extraction result: {'chiffre_affaires': 0.0, 'capitaux_propres': -261051.0, 'resultat_exercice': -196675.0}
+2026-03-11 14:35:32,894 [INFO] application.workflow: LangGraph [extract_metrics]: Agent terminé avec succès.
+2026-03-11 14:35:32,895 [INFO] TestLocal: 
+📊 RÉSULTATS DE L'EXTRACTION :
+2026-03-11 14:35:32,896 [INFO] TestLocal: ✅ Extraction réussie pour Artinity - Liasse fiscale - IS RN - 2023 V2.pdf :
+2026-03-11 14:35:32,896 [INFO] TestLocal: {
+    "chiffre_affaires": 0.0,
+    "capitaux_propres": -261051.0,
+    "resultat_exercice": -196675.0
+}
+2026-03-11 14:35:32,896 [INFO] TestLocal: 
+==============================================
+2026-03-11 14:35:32,896 [INFO] TestLocal: 📄 Analyse de : test/Liasse Fiscale.pdf
+2026-03-11 14:35:32,896 [INFO] TestLocal: ==============================================
+2026-03-11 14:35:32,896 [INFO] TestLocal: 🧠 Lancement de l'agent... (Veuillez patienter)
+2026-03-11 14:35:32,897 [INFO] application.workflow: LangGraph [parse_document]: Démarrage pour l'URL test/Liasse Fiscale.pdf
+2026-03-11 14:35:32,947 [INFO] application.workflow: LangGraph [parse_document]: Succès. 34729 caractères extraits.
+2026-03-11 14:35:32,948 [INFO] application.workflow: LangGraph [extract_metrics]: Lancement de l'agent financier...
+2026-03-11 14:35:33,116 [INFO] infrastructure.agents.financial_agent: Invoking DeepAgent to analyze the document with tools...
+2026-03-11 14:35:35,203 [INFO] infrastructure.agents.financial_agent: Agent is loading skill: capitaux_propres
+2026-03-11 14:35:35,205 [INFO] infrastructure.agents.financial_agent: Agent is loading skill: chiffre_affaires
+2026-03-11 14:35:35,207 [INFO] infrastructure.agents.financial_agent: Agent is loading skill: resultat_exercice
+2026-03-11 14:35:46,889 [INFO] infrastructure.agents.financial_agent: Generating structured output via Pydantic schema...
