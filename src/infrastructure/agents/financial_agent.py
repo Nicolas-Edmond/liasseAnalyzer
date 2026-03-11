@@ -1,10 +1,14 @@
 import os
 import json
+import logging
 from domain.interfaces import IFinancialAgent
 from deepagents import create_deep_agent
 from langchain_google_vertexai import ChatVertexAI
 from langchain.tools import tool
 from .skills import load_skill_prompt
+from application.schemas.extraction import ExtractionOutput
+
+logger = logging.getLogger(__name__)
 
 @tool
 def load_skill(skill_name: str) -> str:
@@ -14,6 +18,7 @@ def load_skill(skill_name: str) -> str:
     - 'capitaux_propres' : Outil pour comprendre comment extraire les capitaux propres (fichiers liasses 2051/2033-A).
     - 'resultat_exercice' : Outil pour comprendre comment extraire le résultat (fichiers liasses 2051/2053 ou 2033-A/2033-B).
     """
+    logger.info(f"Agent is loading skill: {skill_name}")
     return load_skill_prompt(skill_name)
 
 class DeepAgentsFinancialAgent(IFinancialAgent):
@@ -29,6 +34,7 @@ class DeepAgentsFinancialAgent(IFinancialAgent):
         """
         Extrait les 3 KPIs via le pattern Skills (Progressive Disclosure).
         L'agent charge les skills nécessaires puis extrait les données depuis le texte.
+        Utilise structured_output de Gemini pour garantir le format de sortie Pydantic.
         """
         system_prompt = (
             "Tu es un expert-comptable très précis et méticuleux. "
@@ -40,57 +46,44 @@ class DeepAgentsFinancialAgent(IFinancialAgent):
             "afin de connaître les règles d'extraction exactes (les lignes et feuillets à regarder).\n\n"
             "ÉTAPE 2 : Parcours le document et trouve les montants. "
             "Ne prends que le montant, pas le texte. Attention aux signes (positif/négatif).\n\n"
-            "ÉTAPE 3 : Retourne STRICTEMENT un objet JSON valide avec les clés "
-            "`chiffre_affaires`, `capitaux_propres`, et `resultat_exercice`. "
-            "Les valeurs doivent être de type float ou null si introuvable."
+            "ÉTAPE 3 : Extrait avec précision les valeurs numériques."
         )
 
+        llm = self._get_llm()
+        # On utilise LLM.with_structured_output pour forcer le schéma Pydantic
+        structured_llm = llm.with_structured_output(ExtractionOutput)
+
+        # Création de l'agent
+        # On passe le LLM standard à l'agent pour qu'il puisse utiliser les tools
+        # puis on fera un appel final structuré
         agent = create_deep_agent(
-            model=self._get_llm(),
+            model=llm,
             tools=[load_skill],
             system_prompt=system_prompt,
         )
         
-        # Le contexte peut être large, Gemini 1.5/2.5 a une grande fenêtre de contexte
-        # Mais on le tronque par précaution s'il dépasse vraiment les limites
         safe_text = text[:800000] # Limite arbitraire safe
         
         prompt_user = (
             "Voici le texte de la liasse fiscale :\n\n"
             f"{safe_text}\n\n"
-            "Analyse ce texte et renvoie moi l'objet JSON contenant les 3 métriques demandées."
+            "Analyse ce texte en utilisant tes outils pour comprendre comment faire."
         )
 
+        logger.info("Invoking DeepAgent to analyze the document with tools...")
+        # L'agent réfléchit et utilise les tools
         response = agent.invoke({
             "messages": [{"role": "user", "content": prompt_user}]
         })
         
-        raw_content = response["messages"][-1].content
-        if isinstance(raw_content, list):
-            # Handle potential list of blocks (text/tool calls)
-            texts = [block.get('text', '') for block in raw_content if isinstance(block, dict) and 'text' in block]
-            if not texts:
-                texts = [str(block) for block in raw_content if isinstance(block, str)]
-            raw_content = "".join(texts)
-            
-        raw_content = raw_content.strip()
+        # On passe tout l'historique (réflexion de l'agent + document)
+        # pour forcer la sortie structurée finale via Pydantic
+        logger.info("Generating structured output via Pydantic schema...")
+        final_messages = response["messages"] + [
+            {"role": "user", "content": "Maintenant, renvoie uniquement l'objet structuré final avec les 3 métriques extraites (ou null si introuvable)."}
+        ]
         
-        # Nettoyage et parsing du JSON (cas d'hallucination des markdown code blocks)
-        if raw_content.startswith("```json"):
-            raw_content = raw_content[7:]
-        if raw_content.startswith("```"):
-            raw_content = raw_content[3:]
-        if raw_content.endswith("```"):
-            raw_content = raw_content[:-3]
-            
-        try:
-            metrics = json.loads(raw_content)
-            return {
-                "chiffre_affaires": float(metrics.get("chiffre_affaires", 0.0) or 0.0),
-                "capitaux_propres": float(metrics.get("capitaux_propres", 0.0) or 0.0),
-                "resultat_exercice": float(metrics.get("resultat_exercice", 0.0) or 0.0)
-            }
-        except Exception as e:
-            print(f"[ERROR] Failed to parse JSON from LLM: {e}")
-            print(f"Raw Output: {raw_content}")
-            return {"chiffre_affaires": None, "capitaux_propres": None, "resultat_exercice": None}
+        structured_result: ExtractionOutput = structured_llm.invoke(final_messages)
+        
+        logger.info(f"Structured extraction result: {structured_result.model_dump()}")
+        return structured_result.model_dump()
