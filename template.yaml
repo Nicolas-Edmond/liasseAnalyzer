@@ -1,0 +1,49 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  liasse-analyze
+  Extraction Agentique de Liasse EDI (CA, Capitaux Propres, Résultat) via LangChain/DeepAgents.
+
+Globals:
+  Function:
+    Timeout: 300 # 5 minutes max (les workflows multi-agents prennent du temps)
+    MemorySize: 2048 # LangChain + PDF en RAM nécessite un peu de marge
+    Environment:
+      Variables:
+        GCP_PROJECT_ID: formalis-423312
+        GCP_SECRET_NAME: !Ref GcpCredentialsSecret
+
+Resources:
+  GcpCredentialsSecret:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name: formalis/liasse-analyze/gcp-credentials
+      Description: "Service account GCP pour Gemini / VertexAI"
+
+  LiasseAnalyzeFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      PackageType: Image
+      Architectures:
+        - x86_64
+      Policies:
+        - Statement:
+            - Effect: Allow
+              Action:
+                - secretsmanager:GetSecretValue
+              Resource: !Ref GcpCredentialsSecret
+      Events:
+        ApiEvent:
+          Type: Api
+          Properties:
+            Path: /analyze/edi
+            Method: post
+    Metadata:
+      Dockerfile: Dockerfile
+      DockerContext: .
+      DockerTag: python3.11-v1
+
+Outputs:
+  LiasseAnalyzeApi:
+    Description: "API Gateway endpoint URL"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/analyze/edi/"

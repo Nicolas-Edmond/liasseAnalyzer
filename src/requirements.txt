@@ -1,0 +1,8 @@
+langchain>=0.1.0
+langchain-google-vertexai
+deepagents
+google-cloud-secret-manager
+google-auth
+pdfplumber
+PyMuPDF
+boto3
