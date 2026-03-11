@@ -1,6 +1,8 @@
 langchain>=0.1.0
 langchain-google-vertexai
+langgraph
 deepagents
+pydantic
 google-cloud-secret-manager
 google-auth
 pdfplumber
