@@ -45,7 +45,9 @@ class DeepAgentsFinancialAgent(IFinancialAgent):
             "ÉTAPE 1 : Utilise impérativement l'outil `load_skill` pour chacune de ces 3 métriques "
             "afin de connaître les règles d'extraction exactes (les lignes et feuillets à regarder).\n\n"
             "ÉTAPE 2 : Parcours le document et trouve les montants. "
-            "Ne prends que le montant, pas le texte. Attention aux signes (positif/négatif).\n\n"
+            "Ne prends que le montant, pas le texte. "
+            "TRÈS IMPORTANT POUR LE CA : N'additionne jamais les 'autres produits', base-toi uniquement sur les 'ventes de marchandises' et la 'production vendue'. S'ils sont vides, le CA est de 0. "
+            "Attention aux signes (positif/négatif).\n\n"
             "ÉTAPE 3 : Extrait avec précision les valeurs numériques."
         )
 
