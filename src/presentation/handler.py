@@ -1,25 +1,17 @@
 import json
 from infrastructure.gcp_secrets import setup_gcp_credentials
-from infrastructure.document_parser import PyMuPDFDocumentParser
-from infrastructure.agents.financial_agent import DeepAgentsFinancialAgent
-from application.workflow import ExtractionWorkflow
+from infrastructure.container import create_extraction_workflow
 
 def lambda_handler(event, context):
     try:
-        # 1. Config GCP via AWS Secrets (Infra setup)
         setup_gcp_credentials()
-        
-        # 2. Parsing de la requête HTTP (Presentation parsing)
         body = json.loads(event.get("body", "{}"))
         pdf_url = body.get("document_url")
         
         if not pdf_url:
             return {"statusCode": 400, "body": json.dumps({"error": "Missing document_url"})}
 
-        # 3. Injection de Dépendances (Wiring)
-        parser = PyMuPDFDocumentParser()
-        agent = DeepAgentsFinancialAgent()
-        workflow = ExtractionWorkflow(parser=parser, agent=agent)
+        workflow = create_extraction_workflow()
         
         # 4. Exécution du Cas d'Usage Application
         result_state = workflow.run(pdf_url)
