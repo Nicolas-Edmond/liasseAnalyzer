@@ -25,7 +25,7 @@ class ExtractionWorkflow:
             text = self.parser.extract_text(state["document_url"])
             return {"document_text": text}
         except Exception as e:
-            return {"error": str(e)}
+            return {"error": f"Erreur de parsing PDF: {str(e)}"}
 
     def extract_metrics_node(self, state: WorkflowState) -> dict:
         if state.get("error"):
@@ -33,16 +33,15 @@ class ExtractionWorkflow:
         
         text = state["document_text"]
         
-        # Séquentiel ici, ou on peut utiliser un pattern fan-out si besoin
-        ca = self.agent.extract_chiffre_affaires(text)
-        cp = self.agent.extract_capitaux_propres(text)
-        re = self.agent.extract_resultat_exercice(text)
-        
-        return {
-            "chiffre_affaires": ca,
-            "capitaux_propres": cp,
-            "resultat_exercice": re
-        }
+        try:
+            metrics = self.agent.extract_metrics(text)
+            return {
+                "chiffre_affaires": metrics.get("chiffre_affaires"),
+                "capitaux_propres": metrics.get("capitaux_propres"),
+                "resultat_exercice": metrics.get("resultat_exercice")
+            }
+        except Exception as e:
+            return {"error": f"Erreur d'extraction agentique: {str(e)}"}
 
     def run(self, document_url: str) -> dict:
         initial_state = WorkflowState(

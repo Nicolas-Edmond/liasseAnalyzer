@@ -7,13 +7,11 @@ class IDocumentParser(ABC):
 
 class IFinancialAgent(ABC):
     @abstractmethod
-    def extract_chiffre_affaires(self, text: str) -> float:
-        pass
-        
-    @abstractmethod
-    def extract_capitaux_propres(self, text: str) -> float:
-        pass
-        
-    @abstractmethod
-    def extract_resultat_exercice(self, text: str) -> float:
+    def extract_metrics(self, text: str) -> dict:
+        """
+        Doit retourner un dictionnaire contenant :
+        - chiffre_affaires (float)
+        - capitaux_propres (float)
+        - resultat_exercice (float)
+        """
         pass
