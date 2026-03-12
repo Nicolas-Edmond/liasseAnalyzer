@@ -12,6 +12,7 @@ Globals:
       Variables:
         GCP_PROJECT_ID: formalis-423312
         GCP_SECRET_NAME: !Ref GcpCredentialsSecret
+        DIRECT_UPLOAD_BUCKET: formalis-direct-upload-s3 # Bucket utilisé pour le DND de fichiers
 
 Resources:
   GcpCredentialsSecret:
@@ -28,10 +29,19 @@ Resources:
         - x86_64
       Policies:
         - Statement:
+            # 1. Accès aux secrets GCP
             - Effect: Allow
               Action:
                 - secretsmanager:GetSecretValue
               Resource: !Ref GcpCredentialsSecret
+            # 2. Accès en lecture au bucket S3 (upload depuis le front)
+            - Effect: Allow
+              Action:
+                - s3:GetObject
+                - s3:ListBucket
+              Resource: 
+                - "arn:aws:s3:::formalis-direct-upload-s3"
+                - "arn:aws:s3:::formalis-direct-upload-s3/*"
       Events:
         ApiEvent:
           Type: Api
