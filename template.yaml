@@ -27,21 +27,7 @@ Resources:
       PackageType: Image
       Architectures:
         - x86_64
-      Policies:
-        - Statement:
-            # 1. Accès aux secrets GCP
-            - Effect: Allow
-              Action:
-                - secretsmanager:GetSecretValue
-              Resource: !Ref GcpCredentialsSecret
-            # 2. Accès en lecture au bucket S3 (upload depuis le front)
-            - Effect: Allow
-              Action:
-                - s3:GetObject
-                - s3:ListBucket
-              Resource: 
-                - "arn:aws:s3:::formalis-direct-upload-s3"
-                - "arn:aws:s3:::formalis-direct-upload-s3/*"
+      Role: arn:aws:iam::246595588757:role/company-modification-ModificationFunctionRole-idpGH53kZO37
       Events:
         ApiEvent:
           Type: Api
