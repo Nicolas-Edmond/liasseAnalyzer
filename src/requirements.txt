@@ -1,3 +1,6 @@
+# Forcer numexpr à utiliser une version ancienne qui compile avec l'ancien GCC
+numpy<2.0.0
+numexpr==2.8.4
 langchain>=0.1.0
 langchain-google-vertexai
 langgraph
@@ -8,4 +11,3 @@ google-auth
 pdfplumber
 PyMuPDF<1.25.0
 boto3
-numpy<2.0.0
