@@ -3,10 +3,12 @@ version = 0.1
 [default]
 [default.deploy]
 [default.deploy.parameters]
-stack_name = "liasse-edi-analyze-stack"
+stack_name = "liasse-analyze"
 region = "eu-west-3"
 capabilities = "CAPABILITY_IAM"
 confirm_changeset = true
 resolve_s3 = true
 resolve_image_repos = true
 image_repositories = []
+s3_prefix = "liasse-analyze"
+disable_rollback = false
