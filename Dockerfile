@@ -2,6 +2,11 @@ FROM public.ecr.aws/lambda/python:3.11
 
 COPY src/requirements.txt ${LAMBDA_TASK_ROOT}
 
+RUN yum update -y && \
+    yum install -y gcc gcc-c++ make python3-devel && \
+    yum clean all
+
+RUN pip install --upgrade pip
 RUN pip install -r requirements.txt --no-cache-dir
 
 COPY src/ ${LAMBDA_TASK_ROOT}/
