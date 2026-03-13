@@ -1,6 +1,7 @@
 from typing import TypedDict, Optional
 
 class WorkflowState(TypedDict):
+    analysis_id: Optional[str]
     document_url: str
     document_text: str
     chiffre_affaires: Optional[float]

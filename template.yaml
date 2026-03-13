@@ -12,6 +12,7 @@ Globals:
       Variables:
         GCP_PROJECT_ID: formalis-423312
         GCP_SECRET_NAME: !Ref GcpCredentialsSecret
+        DB_SECRET_NAME: !Ref DbCredentialsSecret
         DIRECT_UPLOAD_BUCKET: formalis-direct-upload-s3 # Bucket utilisé pour le DND de fichiers
 
 Resources:
@@ -21,6 +22,13 @@ Resources:
       Name: formalis/liasse-analyze/gcp-credentials
       Description: "Service account GCP pour Gemini / VertexAI"
 
+  DbCredentialsSecret:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name: formalis/liasse-analyze/db-credentials
+      Description: "Identifiants PostgreSQL"
+      SecretString: '{"host": "15.188.15.186", "user": "formalisadmin", "password": "s8VKtTLjRsF7wxasG3UAwpYlvUT78uTxNP0rGeTLFyAwuoh2LX2pm8T3xWHL", "dbname": "formalis", "port": "5432"}'
+
   LiasseAnalyzeFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -29,12 +37,50 @@ Resources:
       Architectures:
         - x86_64
       Role: arn:aws:iam::246595588757:role/company-modification-ModificationFunctionRole-idpGH53kZO37
+      Events:
+        PostApiEvent:
+          Type: Api
+          Properties:
+            Path: /analyze/edi
+            Method: post
+        GetApiEvent:
+          Type: Api
+          Properties:
+            Path: /analyze/edi
+            Method: get
+        OptionsApiEvent:
+          Type: Api
+          Properties:
+            Path: /analyze/edi
+            Method: options
+    Metadata:
+      Dockerfile: Dockerfile
+      DockerContext: .
+      DockerTag: python3.11-v1
+
+  LiasseAnalyzeGetFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: liasse_analyze_get_function
+      PackageType: Image
+      Architectures:
+        - x86_64
+      Role: arn:aws:iam::246595588757:role/company-modification-ModificationFunctionRole-idpGH53kZO37
+      Events:
+        ApiEvent:
+          Type: Api
+          Properties:
+            Path: /analyze/edi
+            Method: get
     Metadata:
       Dockerfile: Dockerfile
       DockerContext: .
       DockerTag: python3.11-v1
 
 Outputs:
+  LiasseAnalyzeApi:
+    Description: "API Gateway endpoint URL"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/analyze/edi/"
   LiasseAnalyzeFunction:
     Description: "Lambda Function ARN"
     Value: !GetAtt LiasseAnalyzeFunction.Arn

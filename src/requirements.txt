@@ -11,3 +11,5 @@ google-auth
 pdfplumber
 PyMuPDF<1.25.0
 boto3
+psycopg2-binary
+
