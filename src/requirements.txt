@@ -4,7 +4,8 @@ numexpr==2.8.4
 langchain>=0.1.0
 langchain-google-vertexai
 langgraph
-deepagents
+# Lock the specific deepagents version that works without issue
+deepagents==0.4.10
 pydantic
 google-cloud-secret-manager
 google-auth
@@ -12,4 +13,3 @@ pdfplumber
 PyMuPDF<1.25.0
 boto3
 psycopg2-binary
-

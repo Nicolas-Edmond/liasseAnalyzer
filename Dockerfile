@@ -6,7 +6,7 @@ RUN yum update -y && \
     yum install -y gcc gcc-c++ make python3-devel && \
     yum clean all
 
-RUN pip install --upgrade pip
+RUN pip install --upgrade pip setuptools wheel
 RUN pip install -r requirements.txt --no-cache-dir
 
 COPY src/ ${LAMBDA_TASK_ROOT}/
