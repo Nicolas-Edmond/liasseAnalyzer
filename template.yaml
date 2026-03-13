@@ -9,11 +9,12 @@ Globals:
     Timeout: 300 # 5 minutes max (les workflows multi-agents prennent du temps)
     MemorySize: 2048 # LangChain + PDF en RAM nécessite un peu de marge
     Environment:
-      Variables:
-        GCP_PROJECT_ID: formalis-423312
-        GCP_SECRET_NAME: !Ref GcpCredentialsSecret
-        DB_SECRET_NAME: !Ref DbCredentialsSecret
-        DIRECT_UPLOAD_BUCKET: formalis-direct-upload-s3 # Bucket utilisé pour le DND de fichiers
+        Variables:
+          GCP_PROJECT_ID: formalis-423312
+          GCP_SECRET_NAME: !Ref GcpCredentialsSecret
+          DB_SECRET_NAME: !Ref DbCredentialsSecret
+          DIRECT_UPLOAD_BUCKET: formalis-direct-upload-s3
+          FORCE_DEPLOY_UPDATE: "1" # Bucket utilisé pour le DND de fichiers
 
 Resources:
   GcpCredentialsSecret:
@@ -35,7 +36,7 @@ Resources:
       FunctionName: liasse_analyze_function
       PackageType: Image
       Architectures:
-        - x86_64
+        - arm64
       Role: arn:aws:iam::246595588757:role/company-modification-ModificationFunctionRole-idpGH53kZO37
       FunctionUrlConfig:
         AuthType: NONE
