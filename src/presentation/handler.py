@@ -41,7 +41,11 @@ def lambda_handler(event, context):
             
     except Exception as e:
         traceback.print_exc()
-        return {"statusCode": 500, "body": json.dumps({"error": str(e)})}
+        return {
+            "statusCode": 500, 
+            "headers": {"Access-Control-Allow-Origin": "*"},
+            "body": json.dumps({"error": str(e)})
+        }
 
 def handle_get_analyses(event):
     """Gère la requête GET pour récupérer les analyses d'un utilisateur."""
