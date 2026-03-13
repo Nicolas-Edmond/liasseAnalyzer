@@ -37,31 +37,32 @@ Resources:
       Architectures:
         - x86_64
       Role: arn:aws:iam::246595588757:role/company-modification-ModificationFunctionRole-idpGH53kZO37
-      Events:
-        PostApiEvent:
-          Type: Api
-          Properties:
-            Path: /analyze/edi
-            Method: post
-        GetApiEvent:
-          Type: Api
-          Properties:
-            Path: /analyze/edi
-            Method: get
-        OptionsApiEvent:
-          Type: Api
-          Properties:
-            Path: /analyze/edi
-            Method: options
     Metadata:
       Dockerfile: Dockerfile
       DockerContext: .
       DockerTag: python3.11-v1
+      
+  # On force SAM à utiliser un ApiGateway existant ou à ne pas essayer d'en créer un nouveau s'il n'a pas les droits.
+  # Mais comme tu n'as pas de droits 'apigateway:POST /restapis', tu ne peux MÊME PAS créer d'API via CloudFormation.
+  # La seule solution est d'exposer la Lambda directement via une Function URL (plus besoin d'API Gateway !)
+  
+  LiasseAnalyzeFunctionUrl:
+    Type: AWS::Lambda::Url
+    Properties:
+      TargetFunctionArn: !Ref LiasseAnalyzeFunction
+      AuthType: NONE
+      Cors:
+        AllowOrigins:
+          - "*"
+        AllowMethods:
+          - "*"
+        AllowHeaders:
+          - "*"
 
 Outputs:
-  LiasseAnalyzeApi:
-    Description: "API Gateway endpoint URL"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/analyze/edi/"
+  LiasseAnalyzeFunctionUrl:
+    Description: "Lambda Function URL (Direct access, no API Gateway)"
+    Value: !GetAtt LiasseAnalyzeFunctionUrl.FunctionUrl
   LiasseAnalyzeFunction:
     Description: "Lambda Function ARN"
     Value: !GetAtt LiasseAnalyzeFunction.Arn

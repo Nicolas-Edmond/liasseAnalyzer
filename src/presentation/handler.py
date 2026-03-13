@@ -7,8 +7,13 @@ from infrastructure.db import get_analyses_for_user
 
 def lambda_handler(event, context):
     try:
-        # Route logic based on HTTP method
-        http_method = event.get('httpMethod', 'POST')
+        # Check if request comes from Function URL (RequestContext.Http.Method) or API Gateway (httpMethod)
+        http_method = event.get('httpMethod')
+        if not http_method and event.get('requestContext', {}).get('http', {}).get('method'):
+            http_method = event['requestContext']['http']['method']
+            
+        if not http_method:
+            http_method = 'POST' # Fallback
         
         # Cross-Origin support handles OPTIONS
         if http_method == 'OPTIONS':
@@ -40,7 +45,7 @@ def lambda_handler(event, context):
 
 def handle_get_analyses(event):
     """Gère la requête GET pour récupérer les analyses d'un utilisateur."""
-    # Le user_uuid peut être passé dans les queryStringParameters
+    # Handle both API Gateway and Function URL query parameters
     query_params = event.get('queryStringParameters') or {}
     user_uuid = query_params.get('user_uuid')
     
@@ -68,7 +73,14 @@ def handle_get_analyses(event):
 
 def handle_post_analysis(event):
     """Gère la requête POST pour soumettre un document à analyser."""
-    body = json.loads(event.get("body", "{}"))
+    body_str = event.get("body", "{}")
+    # Si le body est encodé en base64 (cas avec Function URL parfois), il faudrait le décoder, 
+    # mais partons du principe que l'event est du JSON brut pour le moment.
+    if event.get("isBase64Encoded", False):
+        import base64
+        body_str = base64.b64decode(body_str).decode('utf-8')
+        
+    body = json.loads(body_str)
     
     # Support pour la clé S3 relative (upload front) ou l'URL absolue
     pdf_url = body.get("document_url")
