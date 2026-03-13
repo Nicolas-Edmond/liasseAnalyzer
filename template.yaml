@@ -58,25 +58,6 @@ Resources:
       DockerContext: .
       DockerTag: python3.11-v1
 
-  LiasseAnalyzeGetFunction:
-    Type: AWS::Serverless::Function
-    Properties:
-      FunctionName: liasse_analyze_get_function
-      PackageType: Image
-      Architectures:
-        - x86_64
-      Role: arn:aws:iam::246595588757:role/company-modification-ModificationFunctionRole-idpGH53kZO37
-      Events:
-        ApiEvent:
-          Type: Api
-          Properties:
-            Path: /analyze/edi
-            Method: get
-    Metadata:
-      Dockerfile: Dockerfile
-      DockerContext: .
-      DockerTag: python3.11-v1
-
 Outputs:
   LiasseAnalyzeApi:
     Description: "API Gateway endpoint URL"
