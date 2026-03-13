@@ -51,6 +51,14 @@ Resources:
       DockerContext: .
       DockerTag: python3.11-v1
 
+  LiasseAnalyzeFunctionUrlPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref LiasseAnalyzeFunction
+      Action: lambda:InvokeFunctionUrl
+      Principal: "*"
+      FunctionUrlAuthType: NONE
+
 Outputs:
   LiasseAnalyzeFunctionUrl:
     Description: "Lambda Function URL"
